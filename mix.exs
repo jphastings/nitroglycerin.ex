@@ -1,9 +1,9 @@
-defmodule Nitro.Mixfile do
+defmodule Nitroglycerin.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app: :nitro,
+      app: :nitroglycerin,
       version: "0.1.0",
       elixir: "~> 1.3",
       description: "A library for managing one-time pad encryption",
@@ -38,12 +38,12 @@ defmodule Nitro.Mixfile do
 
   defp package do
     [
-      name: :nitro,
+      name: :nitroglycerin,
       files: ["lib", "mix.exs"],
       maintainers: ["JP Hastings-Spital"],
       licenses: ["MIT"],
       links: %{
-        "Github" => "https://github.com/jphastings/nitro.ex"
+        "Github" => "https://github.com/jphastings/nitroglycerin.ex"
       },
     ]
   end
