@@ -4,27 +4,30 @@ defmodule NitroglycerinTest do
 
   test "golden path encryption" do
     content = "Content"
-    pad_length = String.length(content)
+    pad = String.duplicate("\x00", 64)
+    pad_length = String.length(pad)
 
+    pad_path = "test.pad"
+    File.rm("#{pad_path}.useage")
+    target_path = "test.nitro"
     source_pid = File.open!(content, [:ram, :binary])
-    pad_pid    = File.open!(String.duplicate("\x00", pad_length), [:ram, :binary])
-    target_pid = File.open!("", [:ram, :binary, :write, :read])
+    File.write!(pad_path, pad)
 
-    Nitroglycerin.encrypt(source_pid, pad_pid, target_pid)
+    Nitroglycerin.encrypt!(source_pid, pad_path, target_path)
 
-    :file.position(target_pid, :bof)
+    target_pid = File.open!(target_path, [:read, :binary])
 
     # Magic bytes
     assert IO.binread(target_pid, 2) == "NG"
 
     # Pad index
-    << index :: unsigned-little-64 >> = IO.binread(target_pid, 8)
+    <<index :: unsigned-little-64>> = IO.binread(target_pid, 8)
     assert rem(index, pad_length) == 0
 
-    # Checksum
-    assert IO.binread(target_pid, 16) == :crypto.hash(:md5, content)
-
     # Encrypted content (should be the same as content as the pad is 0s)
-    assert IO.binread(target_pid, 7) == content
+    assert IO.binread(target_pid, String.length(content)) == content
+
+    # Checksum
+    assert IO.binread(target_pid, :all) == :crypto.hash(:md5, content)
   end
 end

@@ -10,6 +10,7 @@ defmodule Nitroglycerin.Mixfile do
       package: package,
       deps: deps,
       docs: [extras: ["README.md"]],
+      escript: [main_module: Nitroglycerin.Executable],
     ]
   end
 
@@ -33,6 +34,7 @@ defmodule Nitroglycerin.Mixfile do
     [
       {:earmark, ">= 0.0.0", only: :dev},
       {:ex_doc, ">= 0.0.0", only: :dev},
+      {:espec, "~> 1.1", only: :test},
     ]
   end
 
