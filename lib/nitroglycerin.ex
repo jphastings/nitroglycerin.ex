@@ -3,26 +3,70 @@ defmodule Nitroglycerin do
   """
   use Bitwise, skip_operators: true
 
-  def encrypt!(source_pid, pad_path, target_path) do
-    target_pid = File.open!(target_path, [:write, :binary])
-    IO.binwrite(target_pid, "NG")
+  def encrypt!(source_io, pad, target_io) do
 
-    {pad_pid, length, index} = pad_details(pad_path)
-    IO.binwrite(target_pid, obfuscate_index(index, length))
+    state = %Nitroglycerin.State{
+      target_io: target_io,
+      bytes_used: 0,
+      digest: :crypto.hash_init(:md5)
+    }
 
-    digest = :crypto.hash_init(:md5)
-    {digest, bytes_used} = IO.binstream(source_pid, 1)
-    |> Stream.each(&IO.binwrite(target_pid, char_xor(&1, IO.binread(pad_pid, 1))))
-    |> Enum.reduce({digest, 0}, fn (byte, {digest, bytes_used}) ->
+    state
+    |> add_magic_bytes
+    |> add_index(pad)
+    |> add_space_for_checksum(pad)
+    |> add_data(source_io, pad)
+    |> rewind_for_checksum(pad)
+    |> add_checksum(pad)
+    |> finalize(pad)
+  end
+
+  defp add_magic_bytes(state) do
+    IO.binwrite(state.target_io, "NG")
+
+    state
+  end
+
+  defp add_index(state, pad) do
+    IO.binwrite(state.target_io, obfuscate_index(pad.next_index, pad.size))
+
+    state
+  end
+
+  defp add_space_for_checksum(state, pad) do
+    IO.binwrite(state.target_io, String.duplicate("\x00", 16))
+    :file.position(pad.io, {:cur, 16})
+
+    state
+  end
+
+  defp add_data(state, source_io, pad) do
+    {digest, bytes_used} = IO.binstream(source_io, 1)
+    |> Stream.each(&IO.binwrite(state.target_io, encrypt_byte(&1, pad)))
+    |> Enum.reduce({state.digest, 0}, fn (byte, {digest, bytes_used}) ->
       {:crypto.hash_update(digest, byte), bytes_used + 1}
     end)
 
-    String.codepoints(:crypto.hash_final(digest))
-    |> Stream.each(&IO.binwrite(target_pid, char_xor(&1, IO.binread(pad_pid, 1))))
+    %{ state | digest: digest, bytes_used: bytes_used }
+  end
+
+  defp rewind_for_checksum(state, pad) do
+    :file.position(state.target_io, 10)
+    :file.position(pad.io, pad.next_index)
+
+    state
+  end
+
+  defp add_checksum(state, pad) do
+    String.codepoints(:crypto.hash_final(state.digest))
+    |> Stream.each(&IO.binwrite(state.target_io, encrypt_byte(&1, pad)))
     |> Stream.run
 
-    advance_pad!(pad_path, index, bytes_used)
-    File.close(target_pid)
+    %{ state | bytes_used: state.bytes_used + 16 }
+  end
+
+  defp finalize(state, pad) do
+    Nitroglycerin.Pad.used!(pad, state.bytes_used)
   end
 
   defp obfuscate_index(index, pad_size) do
@@ -32,31 +76,8 @@ defmodule Nitroglycerin do
     <<obscured_index :: unsigned-little-64>>
   end
 
-  defp char_xor(<<a, as::binary>>, <<b, as::binary>>) do
-    <<bxor(a, b)>>
-  end
-
-  defp pad_details(pad_path) do
-    pad_pid = File.open!(pad_path, [:read, :binary])
-    %{size: length} = File.stat!(pad_path)
-
-    index = case File.read(pad_useage_path(pad_path)) do
-      {:ok, bytes} -> elem(Integer.parse(bytes), 0)
-      {:error, _}  -> 0
-    end
-
-    :file.position(pad_pid, index)
-    {pad_pid, length, index}
-  end
-
-  defp advance_pad!(pad_path, from, byte_count) do
-    File.write!(
-      pad_useage_path(pad_path),
-      Integer.to_charlist(from + byte_count)
-    )
-  end
-
-  defp pad_useage_path(pad_path) do
-    "#{pad_path}.useage"
+  defp encrypt_byte(<<byte, as::binary>>, pad) do
+    <<pad_byte, as::binary>> = IO.binread(pad.io, 1)
+    <<bxor(byte, pad_byte)>>
   end
 end

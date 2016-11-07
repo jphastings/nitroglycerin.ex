@@ -10,6 +10,7 @@ defmodule Nitroglycerin.Mixfile do
       package: package,
       deps: deps,
       docs: [extras: ["README.md"]],
+      preferred_cli_env: [espec: :test],
       escript: [main_module: Nitroglycerin.Executable],
     ]
   end
