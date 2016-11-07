@@ -4,13 +4,13 @@ Nitroglycerin is a library for [One-Time Pad cryptography](https://en.wikipedia.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+[Available in Hex](https://hex.pm/packages/nitroglycerin), the package can be installed with:
 
   1. Add `nitroglycerin` to your list of dependencies in `mix.exs`:
 
     ```elixir
     def deps do
-      [{:nitroglycerin, "~> 0.1.0"}]
+      [{:nitroglycerin, "~> 0.1.1"}]
     end
     ```
 

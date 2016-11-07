@@ -4,7 +4,7 @@ defmodule Nitroglycerin.Mixfile do
   def project do
     [
       app: :nitroglycerin,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.3",
       description: "A library for managing one-time pad encryption",
       package: package,
