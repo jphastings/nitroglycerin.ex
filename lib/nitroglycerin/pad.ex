@@ -1,7 +1,27 @@
 defmodule Nitroglycerin.Pad do
+  @moduledoc """
+  A struct & constructor for holding the key details about a one-time pad file.
+  """
+
   @enforce_keys [:path, :useage_path, :size, :io]
   defstruct [:path, :useage_path, :size, :next_index, :io]
 
+  @doc """
+  Generate a completed `Nitroglycerin.Pad` from the pathname of a pad file.
+
+  If the pad file doesn't exist, this struct will form the basis of the one that will be written.
+
+  ## Examples
+
+      > Nitroglycerin.Pad.from_path("random.pad")
+      %Nitroglycerin.Pad{
+        path: "random.pad",
+        useage_path: "random.pad.useage",
+        size: 12345678,
+        io: #PID<0.0.0>,
+        next_index: 0,
+      }
+  """
   def from_path(pad_path) do
     %{size: size} = File.stat!(pad_path)
 
@@ -22,6 +42,21 @@ defmodule Nitroglycerin.Pad do
     %{ pad | next_index: next_index }
   end
 
+  @doc """
+  Record that some of a pad has been used.
+
+  Assumes that you have used `bytes_used` bytes from the `next_index` of the given `pad`.
+
+  ## Examples
+
+  Record that 1024 bytes have been used:
+
+      > Nitroglycerin.Pad.used!(pad, 1024)
+
+  Ensure a pad has been written to disk:
+
+      > Nitroglycerin.Pad.used!(pad, 0)
+  """
   def used!(pad, bytes_used) do
     total_used = pad.next_index + bytes_used
 

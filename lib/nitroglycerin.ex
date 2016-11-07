@@ -1,8 +1,26 @@
 defmodule Nitroglycerin do
   @moduledoc """
+  A module for encrypting and decrypting the contents of an IO device, eg. a file, using a one-time pad.
   """
+
   use Bitwise, skip_operators: true
 
+  @doc """
+  Encrypts `source_io` with the given `pad` (a `Nitroglycerin.Pad`) and outputs the encrypted bytes to the `target_io`.
+
+  both `source_io` and `target_io` should be `IO.Stream`s that can be read and written with `IO.binread` and `IO.binwrite`.
+
+  Returns the number of bytes left of the pad.
+
+  ## Examples
+
+      > input = File.open!("input.txt")
+      > pad = Nitroglycerin.Pad.from_path("random.pad")
+      > output = File.open!("output.txt.nitro", [:write])
+      > Nitroglycerin.encrypt!(input, pad, output)
+      15643
+
+  """
   def encrypt!(source_io, pad, target_io) do
 
     state = %Nitroglycerin.State{
@@ -65,9 +83,7 @@ defmodule Nitroglycerin do
     %{ state | bytes_used: state.bytes_used + 16 }
   end
 
-  defp finalize(state, pad) do
-    Nitroglycerin.Pad.used!(pad, state.bytes_used)
-  end
+  defp finalize(state, pad), do: Nitroglycerin.Pad.used!(pad, state.bytes_used)
 
   defp obfuscate_index(index, pad_size) do
     # We have 8 bytes to store the index in 256 ^ 8

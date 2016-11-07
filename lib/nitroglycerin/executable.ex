@@ -1,4 +1,6 @@
 defmodule Nitroglycerin.Executable do
+  @moduledoc false
+
   def main(argv) do
     case argv do
       ["e", source, pad] -> encrypt(source, pad)
