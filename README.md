@@ -22,3 +22,28 @@ Nitroglycerin is a library for [One-Time Pad cryptography](https://en.wikipedia.
     end
     ```
 
+## EScripts
+
+### Use
+
+You can encrypt a file with the command line script like this:
+
+```bash
+$ nitroglycerin e file.txt random.pad > file.txt.nitro
+```
+
+*NB.* The output of this command is non-deterministic and you will use up a portion of your pad file with each execution.
+
+### Installation
+
+You can install the helper escript from within the repo folder with:
+
+```bash
+mix escript.install
+```
+
+If you are using Elixir 1.4, you can install the Nitroglycerin EScript with:
+
+```bash
+mix escript.install hex nitroglycerin
+```

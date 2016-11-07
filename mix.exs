@@ -15,9 +15,6 @@ defmodule Nitroglycerin.Mixfile do
     ]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type "mix help compile.app" for more information
   def application do
     [applications: [:logger]]
   end
@@ -37,7 +34,8 @@ defmodule Nitroglycerin.Mixfile do
       maintainers: ["JP Hastings-Spital"],
       licenses: ["MIT"],
       links: %{
-        "Github" => "https://github.com/jphastings/nitroglycerin.ex"
+        "Github" => "https://github.com/jphastings/nitroglycerin.ex",
+        "Docs" => "https://hexdocs.pm/nitroglycerin/",
       },
     ]
   end
