@@ -29,7 +29,8 @@ Nitroglycerin is a library for [One-Time Pad cryptography](https://en.wikipedia.
 You can encrypt a file with the command line script like this:
 
 ```bash
-$ nitroglycerin e file.txt random.pad > file.txt.nitro
+$ nitroglycerin e file.txt random.pad file.txt.nitro
+$ nitroglycerin d file.txt.nitro random.pad file.txt.decrypted
 ```
 
 *NB.* The output of this command is non-deterministic and you will use up a portion of your pad file with each execution.
