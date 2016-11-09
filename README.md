@@ -40,6 +40,7 @@ $ nitroglycerin d file.txt.nitro random.pad file.txt.decrypted
 You can install the helper escript from within the repo folder with:
 
 ```bash
+mix escript.build
 mix escript.install
 ```
 

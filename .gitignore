@@ -17,4 +17,4 @@ erl_crash.dump
 *.ez
 
 # The escript built executable
-nitroglycerin*
+/nitroglycerin
