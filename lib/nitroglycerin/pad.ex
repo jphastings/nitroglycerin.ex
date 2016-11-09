@@ -45,11 +45,12 @@ defmodule Nitroglycerin.Pad do
   @doc """
   Record that some of a pad has been used.
 
-  Assumes that you have used `bytes_used` bytes from the `next_index` of the given `pad`.
+  Assumes that you have used `used_up_to` bytes from the start of the given `pad`. If a number
+  smaller than the one already stored is given then the largest will be left in the pad usage file.
 
   ## Examples
 
-  Record that 1024 bytes have been used:
+  Record that the first 1024 bytes have been used:
 
       > Nitroglycerin.Pad.used!(pad, 1024)
 
@@ -57,14 +58,15 @@ defmodule Nitroglycerin.Pad do
 
       > Nitroglycerin.Pad.used!(pad, 0)
   """
-  def used!(pad, bytes_used) do
-    total_used = pad.next_index + bytes_used
-
+  def used!(pad, used_up_to) do
     File.write!(
       pad.usage_path,
-      Integer.to_charlist(total_used)
+      max(
+        Integer.to_charlist(used_up_to),
+        pad.next_index
+      )
     )
 
-    pad.size - total_used
+    pad.size - used_up_to
   end
 end
