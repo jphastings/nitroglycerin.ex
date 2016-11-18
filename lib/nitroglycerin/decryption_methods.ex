@@ -25,7 +25,7 @@ defmodule Nitroglycerin.DecryptionMethods do
   end
 
   def retrieve_data(state, target_io, pad) do
-    {digest, bytes_used} = IO.binstream(state.io, 16)
+    {digest, bytes_used} = IO.binstream(state.io, 1024)
     |> Stream.map(&crypt_string(&1, pad))
     |> Stream.each(&IO.binwrite(target_io, &1))
     |> Enum.reduce({state.digest, 0}, &update_hash_and_increment(&1, &2))

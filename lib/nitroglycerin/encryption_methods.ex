@@ -22,7 +22,7 @@ defmodule Nitroglycerin.EncryptionMethods do
   end
 
   def add_data(state, source_io, pad) do
-    {digest, total_bytes_used} = IO.binstream(source_io, 16)
+    {digest, total_bytes_used} = IO.binstream(source_io, 1024)
     |> Stream.each(&IO.binwrite(state.io, crypt_string(&1, pad)))
     |> Enum.reduce({state.digest, 0}, &update_hash_and_increment(&1, &2))
 
