@@ -13,15 +13,21 @@ defmodule Nitroglycerin.SharedMethods do
     rem(obfuscated_index, pad.size)
   end
 
-  def crypt_byte(<<byte, _::binary>>, pad) do
-    <<pad_byte, _::binary>> = IO.binread(pad.io, 1)
-    <<bxor(byte, pad_byte)>>
+  def crypt_string(<<bytes::binary>>, pad) do
+    <<pad_bytes::binary>> = IO.binread(pad.io, byte_size(bytes))
+    
+    zipped = Enum.zip(
+      :binary.bin_to_list(bytes),
+      :binary.bin_to_list(pad_bytes)
+    )
+
+    :binary.list_to_bin(Enum.map(zipped, fn({a, b}) -> bxor(a, b) end))
   end
 
-  def update_hash_and_increment(byte, {digest, bytes_used}) do
+  def update_hash_and_increment(string, {digest, bytes_used}) do
     {
-      :crypto.hash_update(digest, byte),
-      bytes_used + 1
+      :crypto.hash_update(digest, string),
+      bytes_used + byte_size(string)
     }
   end
 end

@@ -19,16 +19,14 @@ defmodule Nitroglycerin.DecryptionMethods do
   end
 
   def retrieve_digest(state, pad) do
-    checksum = IO.binstream(state.io, 1)
-    |> Stream.take(16)
-    |> Enum.reduce(<<>>, &(&2 <> crypt_byte(&1, pad)))
+    checksum = crypt_string(IO.binread(state.io, 16), pad)
 
     %{ state | checksum: checksum, index: state.index + 16 }
   end
 
   def retrieve_data(state, target_io, pad) do
-    {digest, bytes_used} = IO.binstream(state.io, 1)
-    |> Stream.map(&crypt_byte(&1, pad))
+    {digest, bytes_used} = IO.binstream(state.io, 16)
+    |> Stream.map(&crypt_string(&1, pad))
     |> Stream.each(&IO.binwrite(target_io, &1))
     |> Enum.reduce({state.digest, 0}, &update_hash_and_increment(&1, &2))
 

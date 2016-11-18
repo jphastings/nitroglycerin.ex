@@ -5,7 +5,7 @@ defmodule Nitroglycerin.Executable do
     case argv do
       ["e", source, pad, out_path] -> encrypt(source, pad, out_path)
       ["d", source, pad, out_path] -> decrypt(source, pad, out_path)
-      _ -> IO.puts :stderr, "Invalid options"
+      _ -> IO.puts :stderr, "Usage: nitroglycerin [e|d] source pad output"
     end
   end
 

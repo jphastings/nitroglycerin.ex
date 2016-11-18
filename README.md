@@ -10,7 +10,7 @@ Nitroglycerin is a library for [One-Time Pad cryptography](https://en.wikipedia.
 
     ```elixir
     def deps do
-      [{:nitroglycerin, "~> 0.1.1"}]
+      [{:nitroglycerin, "~> 0.2.2"}]
     end
     ```
 

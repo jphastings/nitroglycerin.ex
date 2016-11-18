@@ -22,8 +22,8 @@ defmodule Nitroglycerin.EncryptionMethods do
   end
 
   def add_data(state, source_io, pad) do
-    {digest, total_bytes_used} = IO.binstream(source_io, 1)
-    |> Stream.each(&IO.binwrite(state.io, crypt_byte(&1, pad)))
+    {digest, total_bytes_used} = IO.binstream(source_io, 16)
+    |> Stream.each(&IO.binwrite(state.io, crypt_string(&1, pad)))
     |> Enum.reduce({state.digest, 0}, &update_hash_and_increment(&1, &2))
 
     %{ state | digest: digest, index: state.index + total_bytes_used }
@@ -37,10 +37,7 @@ defmodule Nitroglycerin.EncryptionMethods do
   end
 
   def add_digest(state, pad) do
-
-    :binary.bin_to_list(:crypto.hash_final(state.digest))
-    |> Stream.each(&IO.binwrite(state.io, crypt_byte(<<&1>>, pad)))
-    |> Stream.run
+    IO.binwrite(state.io, crypt_string(:crypto.hash_final(state.digest), pad))
 
     %{ state | index: state.index + 16 }
   end
